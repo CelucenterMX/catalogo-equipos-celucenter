@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Equipos — Celucenter</title>
+    <link rel="icon" type="image/png" href="https://piztian.github.io/samsung-s25/imagenes/Celucenter-500x260.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        /* ==========  HEADER  ========== */
+        .header {
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 14px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo img { height: 36px; }
+        .logo-text { font-weight: 700; font-size: 16px; color: #222; }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+        .user-info .user-name { color: #666; }
+        .user-info .user-lista {
+            background: #e3f2fd;
+            color: #0277bd;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .btn-logout {
+            background: none;
+            border: 1px solid #ddd;
+            color: #666;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-logout:hover { background: #f5f5f5; }
+
+        /* ==========  LOGIN SCREEN  ========== */
+        .login-screen {
+            max-width: 420px;
+            margin: 60px auto;
+            background: #fff;
+            padding: 30px 24px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .login-screen img { height: 48px; margin-bottom: 18px; }
+        .login-screen h2 { font-size: 20px; margin-bottom: 6px; color: #222; }
+        .login-screen p { color: #666; font-size: 13px; margin-bottom: 22px; }
+        .form-tabs {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 18px;
+        }
+        .form-tab {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            background: transparent;
+            color: #666;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .form-tab.active { background: #fff; color: #222; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .form-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .form-group label { font-size: 12px; color: #666; display: block; margin-bottom: 4px; }
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        .form-group input:focus { border-color: #1976d2; }
+        .btn-primary {
+            width: 100%;
+            padding: 11px;
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .form-message {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: none;
+        }
+        .form-message.error { background: #ffebee; color: #c62828; display: block; }
+        .form-message.success { background: #e8f5e9; color: #2e7d32; display: block; }
+
+        /* ==========  FILTERS  ========== */
+        .filters-section {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .search-bar input {
+            flex: 1;
+            min-width: 200px;
+            padding: 11px 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #fff;
+            outline: none;
+        }
+        .search-bar input:focus { border-color: #1976d2; }
+        .almacen-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .almacen-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #fff;
+            color: #555;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .almacen-btn.active {
+            background: #1976d2;
+            color: #fff;
+            border-color: #1976d2;
+        }
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: #fff;
+            padding: 12px 14px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 14px;
+        }
+        .filter-row select, .filter-row input[type="number"] {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #fff;
+            outline: none;
+        }
+        .filter-row input[type="number"] { width: 110px; }
+        .filter-row label { font-size: 12px; color: #666; }
+        .result-info {
+            font-size: 13px;
+            color: #666;
+            padding: 0 6px;
+        }
+        .result-info strong { color: #1976d2; font-size: 15px; }
+
+        /* ==========  PRODUCT CARDS  ========== */
+        .products-grid {
+            max-width: 1200px;
+            margin: 10px auto 40px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+        .product-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-left: 4px solid #1976d2;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .product-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); transition: all 0.15s; }
+        .product-category {
+            font-size: 10px;
+            color: #888;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            min-height: 36px;
+        }
+        .product-code {
+            font-size: 11px;
+            color: #999;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+        .product-badges {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .badge {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .badge-almacen { position: absolute; top: 12px; right: 12px; }
+        .badge-bm   { background: #1976d2; color: #fff; }
+        .badge-ecom { background: #f57c00; color: #fff; }
+        .badge-laft { background: #c62828; color: #fff; }
+        .badge-openbox { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+        .badge-grado { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+        .badge-telmov { background: #f3e5f5; color: #6a1b9a; }
+        .badge-payjoy { background: #e0f7fa; color: #00838f; }
+        .product-stock {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .product-stock strong { color: #2e7d32; }
+        .product-stock.out strong { color: #c62828; }
+        .product-pricing {
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .price-single {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .price-label { font-size: 11px; color: #666; }
+        .price-value { font-size: 18px; font-weight: 700; color: #1976d2; }
+        .price-public { font-size: 11px; color: #999; text-decoration: line-through; }
+        .price-all {
+            background: #f8f8f8;
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+        .price-all-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 12px;
+        }
+        .price-all-row span:first-child { color: #666; }
+        .price-all-row span:last-child { font-weight: 600; color: #1a1a1a; }
+        .price-all-row.publico {
+            border-top: 1px solid #ddd;
+            margin-top: 4px;
+            padding-top: 6px;
+        }
+        .price-all-row.publico span { color: #999; }
+        .price-all-row.publico span:last-child { text-decoration: line-through; }
+        .price-pending { font-size: 12px; color: #888; text-align: center; padding: 6px; }
+        .product-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .btn-photo, .btn-wa {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .btn-photo { background: #f0f0f0; color: #555; }
+        .btn-photo:hover { background: #e0e0e0; }
+        .btn-wa { background: #25d366; color: #fff; }
+        .btn-wa:hover { background: #20b858; }
+
+        /* ==========  LOADING & EMPTY  ========== */
+        .loading, .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+        .loading::before {
+            content: "⏳";
+            display: block;
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+        .empty::before {
+            content: "🔍";
+            display: block;
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .products-grid { grid-template-columns: 1fr; padding: 0 12px; }
+            .filters-section { padding: 0 12px; }
+            .header-inner { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header" id="headerSection" style="display:none;">
+    <div class="header-inner">
+        <div class="logo">
+            <img src="https://piztian.github.io/samsung-s25/imagenes/Celucenter-500x260.png" alt="Celucenter">
+            <span class="logo-text">Catálogo Equipos</span>
+        </div>
+        <div class="user-info">
+            <span class="user-name" id="userName"></span>
+            <span class="user-lista" id="userLista"></span>
+            <button class="btn-logout" onclick="logout()">Salir</button>
+        </div>
+    </div>
+</div>
+
+<!-- LOGIN / REGISTER -->
+<div class="login-screen" id="loginScreen">
+    <img src="https://piztian.github.io/samsung-s25/imagenes/Celucenter-500x260.png" alt="Celucenter">
+    <h2>Catálogo de Equipos</h2>
+    <p>Precios mayoristas · BM · Ecom · LAFT</p>
+
+    <div class="form-tabs">
+        <button class="form-tab active" onclick="showTab('login')" id="tabLogin">Iniciar sesión</button>
+        <button class="form-tab" onclick="showTab('register')" id="tabRegister">Registrarme</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginForm">
+        <div class="form-group">
+            <label>Teléfono (10 dígitos)</label>
+            <input type="tel" id="loginPhone" placeholder="Ej. 3414386105" maxlength="10" inputmode="numeric">
+        </div>
+        <button class="btn-primary" onclick="handleLogin()" id="btnLogin">Iniciar sesión</button>
+        <div class="form-message" id="loginMsg"></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerForm" style="display:none;">
+        <div class="form-group">
+            <label>Nombre completo</label>
+            <input type="text" id="regName" placeholder="Tu nombre">
+        </div>
+        <div class="form-group">
+            <label>Teléfono (10 dígitos)</label>
+            <input type="tel" id="regPhone" placeholder="Ej. 3414386105" maxlength="10" inputmode="numeric">
+        </div>
+        <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" id="regEmail" placeholder="tu@email.com">
+        </div>
+        <button class="btn-primary" onclick="handleRegister()" id="btnRegister">Registrarme</button>
+        <div class="form-message" id="registerMsg"></div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;">
+    <div class="filters-section">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o código..." oninput="applyFilters()">
+        </div>
+
+        <div class="almacen-btns" id="almacenBtns">
+            <button class="almacen-btn active" data-almacen="" onclick="selectAlmacen('')">Todos</button>
+        </div>
+
+        <div class="filter-row">
+            <label>Marca:</label>
+            <select id="marcaFilter" onchange="applyFilters()">
+                <option value="">Todas</option>
+            </select>
+
+            <label>Precio:</label>
+            <input type="number" id="precioMin" placeholder="Mín" oninput="applyFilters()">
+            <input type="number" id="precioMax" placeholder="Máx" oninput="applyFilters()">
+
+            <label>Ordenar:</label>
+            <select id="ordenFilter" onchange="applyFilters()">
+                <option value="nombre">Nombre</option>
+                <option value="precio-asc">Precio ↑</option>
+                <option value="precio-desc">Precio ↓</option>
+                <option value="stock-desc">Stock ↓</option>
+            </select>
+        </div>
+
+        <div class="result-info">Mostrando <strong id="resultCount">0</strong> productos</div>
+    </div>
+
+    <div id="productsContainer">
+        <div class="loading">Cargando productos...</div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const APPS_SCRIPT_URL = 'REEMPLAZAR_CON_URL_DEL_DEPLOY';
+const TOKEN = 'CELUCENTER_EQUIPOS_2026';
+const WHATSAPP_NUMBER = '5213413300001';
+const STORAGE_KEY = 'celu_equipos_session';
+
+// ============================================================
+// STATE
+// ============================================================
+let userSession = null;
+let allProducts = [];
+let filteredProducts = [];
+let selectedAlmacen = '';
+let almacenes = new Set();
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            userSession = JSON.parse(saved);
+            enterApp();
+        } catch (e) {}
+    }
+});
+
+// ============================================================
+// AUTH
+// ============================================================
+function showTab(which) {
+    document.getElementById('tabLogin').classList.toggle('active', which === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', which === 'register');
+    document.getElementById('loginForm').style.display = which === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = which === 'register' ? 'block' : 'none';
+}
+
+async function handleLogin() {
+    const phone = document.getElementById('loginPhone').value.trim();
+    const msg = document.getElementById('loginMsg');
+    const btn = document.getElementById('btnLogin');
+
+    if (!/^\d{10}$/.test(phone)) {
+        msg.className = 'form-message error';
+        msg.textContent = 'Ingresa un teléfono válido de 10 dígitos';
+        return;
+    }
+
+    btn.disabled = true; btn.textContent = 'Verificando...';
+    msg.style.display = 'none';
+
+    try {
+        const url = `${APPS_SCRIPT_URL}?action=login&token=${TOKEN}&phone=${encodeURIComponent(phone)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.exists) {
+            userSession = { phone, name: data.name, email: data.email, lista: data.lista };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(userSession));
+            enterApp();
+        } else {
+            msg.className = 'form-message error';
+            msg.textContent = 'Teléfono no registrado. Regístrate primero.';
+        }
+    } catch (e) {
+        msg.className = 'form-message error';
+        msg.textContent = 'Error de conexión. Intenta de nuevo.';
+    }
+
+    btn.disabled = false; btn.textContent = 'Iniciar sesión';
+}
+
+async function handleRegister() {
+    const name = document.getElementById('regName').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const msg = document.getElementById('registerMsg');
+    const btn = document.getElementById('btnRegister');
+
+    if (!name) { msg.className = 'form-message error'; msg.textContent = 'Ingresa tu nombre'; return; }
+    if (!/^\d{10}$/.test(phone)) { msg.className = 'form-message error'; msg.textContent = 'Teléfono inválido'; return; }
+    if (!email.includes('@')) { msg.className = 'form-message error'; msg.textContent = 'Correo inválido'; return; }
+
+    btn.disabled = true; btn.textContent = 'Registrando...';
+    msg.style.display = 'none';
+
+    try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'register', token: TOKEN, name, phone, email })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            userSession = { phone, name, email, lista: data.lista || '' };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(userSession));
+            msg.className = 'form-message success';
+            msg.textContent = data.message;
+            setTimeout(enterApp, 800);
+        } else {
+            msg.className = 'form-message error';
+            msg.textContent = data.message || 'Error al registrarte';
+        }
+    } catch (e) {
+        msg.className = 'form-message error';
+        msg.textContent = 'Error de conexión. Intenta de nuevo.';
+    }
+
+    btn.disabled = false; btn.textContent = 'Registrarme';
+}
+
+function logout() {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+}
+
+function enterApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('headerSection').style.display = 'block';
+    document.getElementById('mainApp').style.display = 'block';
+    document.getElementById('userName').textContent = userSession.name || '';
+    const listaDisplay = userSession.lista ? `Lista ${userSession.lista}` : 'Sin lista';
+    document.getElementById('userLista').textContent = listaDisplay;
+    loadCatalog();
+}
+
+// ============================================================
+// CATALOG
+// ============================================================
+async function loadCatalog() {
+    try {
+        const url = `${APPS_SCRIPT_URL}?action=catalog&token=${TOKEN}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        allProducts = data.products || [];
+
+        // Detectar almacenes
+        allProducts.forEach(p => { if (p.almacen) almacenes.add(p.almacen); });
+        buildAlmacenButtons();
+
+        // Detectar marcas
+        const marcas = [...new Set(allProducts.map(p => p.nombreCategoria).filter(Boolean))].sort();
+        const marcaSelect = document.getElementById('marcaFilter');
+        marcas.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            marcaSelect.appendChild(opt);
+        });
+
+        applyFilters();
+    } catch (e) {
+        document.getElementById('productsContainer').innerHTML = `<div class="empty">Error cargando productos.<br>${e.message}</div>`;
+    }
+}
+
+function buildAlmacenButtons() {
+    const container = document.getElementById('almacenBtns');
+    const order = ['BM', 'Ecom', 'LAFT'];
+    const found = order.filter(a => almacenes.has(a));
+
+    // Botón "Todos" ya existe, agrego los demás
+    found.forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = 'almacen-btn';
+        btn.textContent = name;
+        btn.onclick = () => selectAlmacen(name);
+        btn.dataset.almacen = name;
+        container.appendChild(btn);
+    });
+}
+
+function selectAlmacen(name) {
+    selectedAlmacen = name;
+    document.querySelectorAll('.almacen-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.almacen === name);
+    });
+    applyFilters();
+}
+
+// ============================================================
+// FILTERS
+// ============================================================
+function applyFilters() {
+    const search = document.getElementById('searchInput').value.trim().toLowerCase();
+    const marca = document.getElementById('marcaFilter').value;
+    const pMin = parseFloat(document.getElementById('precioMin').value);
+    const pMax = parseFloat(document.getElementById('precioMax').value);
+    const orden = document.getElementById('ordenFilter').value;
+
+    const lista = (userSession && userSession.lista || '').toUpperCase();
+    const getPrice = p => {
+        if (lista === 'M') return p.listaM;
+        if (lista === 'G') return p.listaG;
+        if (lista === 'F') return p.listaF;
+        return p.listaF || p.precioPublico;
+    };
+
+    filteredProducts = allProducts.filter(p => {
+        if (selectedAlmacen && p.almacen !== selectedAlmacen) return false;
+        if (marca && p.nombreCategoria !== marca) return false;
+        if (search) {
+            const hay = (p.producto + ' ' + p.codigo).toLowerCase();
+            if (!hay.includes(search)) return false;
+        }
+        const price = getPrice(p);
+        if (!isNaN(pMin) && (price === null || price < pMin)) return false;
+        if (!isNaN(pMax) && (price === null || price > pMax)) return false;
+        return true;
+    });
+
+    // Ordenar
+    filteredProducts.sort((a, b) => {
+        if (orden === 'precio-asc') return (getPrice(a) || 9e9) - (getPrice(b) || 9e9);
+        if (orden === 'precio-desc') return (getPrice(b) || 0) - (getPrice(a) || 0);
+        if (orden === 'stock-desc') return (b.cantidad || 0) - (a.cantidad || 0);
+        return (a.producto || '').localeCompare(b.producto || '');
+    });
+
+    renderProducts();
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderProducts() {
+    const container = document.getElementById('productsContainer');
+    document.getElementById('resultCount').textContent = filteredProducts.length;
+
+    if (!filteredProducts.length) {
+        container.innerHTML = '<div class="empty">Sin resultados con esos filtros.</div>';
+        return;
+    }
+
+    const html = filteredProducts.map(p => renderCard(p)).join('');
+    container.innerHTML = `<div class="products-grid">${html}</div>`;
+}
+
+function fmt(v) {
+    if (v === null || v === undefined || v === '') return null;
+    const n = typeof v === 'number' ? v : parseFloat(String(v).replace(/[^0-9.]/g, ''));
+    return !isNaN(n) ? '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : null;
+}
+
+function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+}
+
+function detectBadges(producto) {
+    const name = producto.toUpperCase();
+    const badges = [];
+    if (name.includes('OPEN BOX') || name.includes('OPENBOX') || name.endsWith('OPEN')) {
+        badges.push('<span class="badge badge-openbox">OPEN BOX</span>');
+    }
+    const gradoMatch = name.match(/\b(GRADO\s*)?[RG]?(?:BA|BB|BC)\b/);
+    if (gradoMatch) {
+        const g = gradoMatch[0].replace('GRADO', '').trim();
+        badges.push(`<span class="badge badge-grado">GRADO ${g.slice(-1)}</span>`);
+    }
+    return badges.join('');
+}
+
+function renderCard(p) {
+    const lista = (userSession.lista || '').toUpperCase();
+    const stockCls = p.cantidad > 0 ? '' : 'out';
+    const stockTxt = p.cantidad > 0 ? `Stock: <strong>${p.cantidad}</strong>` : 'Agotado';
+
+    // Precio
+    let pricingHtml = '';
+    if (!lista) {
+        pricingHtml = '<div class="price-pending">Pendiente de asignar lista</div>';
+    } else if (lista === 'TODAS') {
+        const rows = [
+            { name: 'Lista M', val: fmt(p.listaM) },
+            { name: 'Lista G', val: fmt(p.listaG) },
+            { name: 'Lista F', val: fmt(p.listaF) },
+        ].filter(r => r.val);
+        const pub = fmt(p.precioPublico);
+        if (rows.length) {
+            pricingHtml = `
+                <div class="price-all">
+                    ${rows.map(r => `<div class="price-all-row"><span>${r.name}</span><span>${r.val}</span></div>`).join('')}
+                    ${pub ? `<div class="price-all-row publico"><span>Público</span><span>${pub}</span></div>` : ''}
+                </div>`;
+        } else {
+            pricingHtml = '<div class="price-pending">Sin precio</div>';
+        }
+    } else {
+        let price = null, lname = '';
+        if (lista === 'M') { price = p.listaM; lname = 'Lista M'; }
+        else if (lista === 'G') { price = p.listaG; lname = 'Lista G'; }
+        else if (lista === 'F') { price = p.listaF; lname = 'Lista F'; }
+
+        const pfmt = fmt(price);
+        const pub = fmt(p.precioPublico);
+        if (pfmt) {
+            pricingHtml = `
+                <div class="price-single">
+                    <span class="price-label">${lname}</span>
+                    <span class="price-value">${pfmt}</span>
+                </div>
+                ${pub ? `<div style="text-align:right;margin-top:2px;"><span class="price-public">${pub}</span></div>` : ''}`;
+        } else {
+            pricingHtml = '<div class="price-pending">Sin precio</div>';
+        }
+    }
+
+    // Badges
+    const extraBadges = [];
+    if (p.telmovPay) extraBadges.push('<span class="badge badge-telmov">TELMOV</span>');
+    if (p.payjoy) extraBadges.push('<span class="badge badge-payjoy">PAYJOY</span>');
+    const productBadges = detectBadges(p.producto);
+
+    // Foto + WhatsApp
+    const photoQuery = encodeURIComponent(p.producto);
+    const photoUrl = `https://www.google.com/search?tbm=isch&q=${photoQuery}`;
+    const waMsg = encodeURIComponent(
+        `Hola! Me interesa el equipo:\n*${p.producto}*\nCódigo: ${p.codigo}\nAlmacén: ${p.almacen}`
+    );
+    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMsg}`;
+
+    const almacenCls = 'badge-' + p.almacen.toLowerCase();
+
+    return `
+        <div class="product-card">
+            <span class="badge badge-almacen ${almacenCls}">${escapeHtml(p.almacen)}</span>
+            <div class="product-category">${escapeHtml(p.nombreCategoria || '')}</div>
+            <div class="product-name">${escapeHtml(p.producto)}</div>
+            <div class="product-code">${escapeHtml(p.codigo)}</div>
+            ${(productBadges || extraBadges.length) ? `<div class="product-badges">${productBadges}${extraBadges.join('')}</div>` : ''}
+            <div class="product-stock ${stockCls}">${stockTxt}</div>
+            <div class="product-pricing">${pricingHtml}</div>
+            <div class="product-actions">
+                <a href="${photoUrl}" target="_blank" class="btn-photo">📸 Ver foto</a>
+                <a href="${waUrl}" target="_blank" class="btn-wa">💬 Pedir</a>
+            </div>
+        </div>`;
+}
+</script>
+
+</body>
+</html>
