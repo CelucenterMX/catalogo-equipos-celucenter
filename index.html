@@ -60,6 +60,18 @@
             font-size: 12px;
         }
         .btn-logout:hover { background: #f5f5f5; }
+        .btn-refresh {
+            background: none;
+            border: 1px solid #ddd;
+            color: #0066cc;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 6px;
+        }
+        .btn-refresh:hover { background: #eff6ff; }
+        .btn-refresh:disabled { opacity: 0.5; cursor: wait; }
 
         /* ==========  LOGIN SCREEN  ========== */
         .login-screen {
@@ -369,6 +381,7 @@
         <div class="user-info">
             <span class="user-name" id="userName"></span>
             <span class="user-lista" id="userLista"></span>
+            <button class="btn-refresh" onclick="refreshLista()" id="btnRefresh" title="Vuelve a consultar tu lista asignada">Actualizar lista</button>
             <button class="btn-logout" onclick="logout()">Salir</button>
         </div>
     </div>
@@ -570,6 +583,36 @@ async function handleRegister() {
 function logout() {
     localStorage.removeItem(STORAGE_KEY);
     location.reload();
+}
+
+async function refreshLista() {
+    if (!userSession || !userSession.phone) return;
+    const btn = document.getElementById('btnRefresh');
+    const prevLista = (userSession.lista || '').toUpperCase();
+    btn.disabled = true;
+    const prevText = btn.textContent;
+    btn.textContent = 'Actualizando...';
+    try {
+        const url = `${APPS_SCRIPT_URL}?action=login&token=${TOKEN}&phone=${encodeURIComponent(userSession.phone)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.exists) {
+            userSession.lista = data.lista || '';
+            userSession.name = data.name || userSession.name;
+            userSession.email = data.email || userSession.email;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(userSession));
+            const listaDisplay = userSession.lista ? `Lista ${userSession.lista}` : 'Sin lista';
+            document.getElementById('userLista').textContent = listaDisplay;
+            renderProducts();
+            const newLista = (userSession.lista || '').toUpperCase();
+            btn.textContent = newLista !== prevLista ? `Lista: ${newLista || 'sin asignar'}` : 'Sin cambios';
+        } else {
+            btn.textContent = 'No encontrado';
+        }
+    } catch (e) {
+        btn.textContent = 'Error';
+    }
+    setTimeout(() => { btn.disabled = false; btn.textContent = prevText; }, 1800);
 }
 
 function enterApp() {
