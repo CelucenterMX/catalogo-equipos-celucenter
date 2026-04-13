@@ -993,7 +993,7 @@ function applyFilters() {
         if (lista === 'M') return p.listaM;
         if (lista === 'G') return p.listaG;
         if (lista === 'F') return p.listaF;
-        if (lista === 'CRISTIAN') return p.listaF ? Math.round(p.listaF * 1.15 * 100) / 100 : null;
+        if (lista === 'CRISTIAN') return precioCristian(p.listaF);
         return p.listaF || p.precioPublico;
     };
 
@@ -1067,6 +1067,15 @@ function detectBadges(producto) {
 // ============================================================
 // CART HELPERS
 // ============================================================
+function precioCristian(listaF) {
+    if (!listaF || listaF <= 0) return null;
+    if (listaF < 500) return listaF + 50;
+    if (listaF < 2000) return listaF + 100;
+    if (listaF < 5000) return listaF + 150;
+    if (listaF < 10000) return listaF + 250;
+    return listaF + 500;
+}
+
 function getCartKey(p) { return p.codigo + '_' + p.almacen; }
 
 function getProductPrice(p) {
@@ -1074,7 +1083,7 @@ function getProductPrice(p) {
     if (lista === 'M') return p.listaM;
     if (lista === 'G') return p.listaG;
     if (lista === 'F') return p.listaF;
-    if (lista === 'CRISTIAN') return p.listaF ? Math.round(p.listaF * 1.15 * 100) / 100 : null;
+    if (lista === 'CRISTIAN') return precioCristian(p.listaF);
     return p.listaF || p.precioPublico;
 }
 
@@ -1294,7 +1303,7 @@ function renderCard(p) {
     if (!lista) {
         pricingHtml = '<div class="price-pending">Pendiente de asignar lista</div>';
     } else if (lista === 'TODAS') {
-        const cristianPrice = p.listaF ? Math.round(p.listaF * 1.15 * 100) / 100 : null;
+        const cristianPrice = precioCristian(p.listaF);
         const rows = [
             { name: 'Lista M', val: fmt(p.listaM) },
             { name: 'Lista G', val: fmt(p.listaG) },
@@ -1317,7 +1326,7 @@ function renderCard(p) {
         else if (lista === 'G') { price = p.listaG; lname = 'Lista G'; }
         else if (lista === 'F') { price = p.listaF; lname = 'Lista F'; }
         else if (lista === 'CRISTIAN') {
-            price = p.listaF ? Math.round(p.listaF * 1.15 * 100) / 100 : null;
+            price = precioCristian(p.listaF);
             lname = 'Lista Cristian';
         }
 
