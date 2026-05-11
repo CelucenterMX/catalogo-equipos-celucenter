@@ -931,7 +931,7 @@ async function loadCatalog() {
         const url = `${APPS_SCRIPT_URL}?action=catalog&token=${TOKEN}`;
         const res = await fetch(url);
         const data = await res.json();
-        allProducts = data.products || [];
+        allProducts = (data.products || []).filter(p => p.almacen === 'BM');
 
         // Detectar almacenes
         allProducts.forEach(p => { if (p.almacen) almacenes.add(p.almacen); });
