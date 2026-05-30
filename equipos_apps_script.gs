@@ -149,7 +149,7 @@ function getCatalog() {
         producto: producto,
         nombreCategoria: String(row[cfg.cols.nombreCategoria] || '').trim(),
         categoria: String(row[cfg.cols.categoria] || '').trim(),
-        cantidad: cleanCantidad(row[cfg.cols.cantidad]),
+        existencias: cleanCantidad(row[cfg.cols.cantidad]),
         listaM: cleanPrice(row[cfg.cols.listaM]),
         listaG: cleanPrice(row[cfg.cols.listaG]),
         listaF: cleanPrice(row[cfg.cols.listaF]),
