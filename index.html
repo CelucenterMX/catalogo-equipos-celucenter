@@ -256,6 +256,29 @@
             font-family: monospace;
             margin-bottom: 10px;
         }
+        .product-code-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .stock-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .stock-badge.in-stock {
+            background: #5CB85C;
+            color: #fff;
+        }
+        .stock-badge.out-of-stock {
+            background: #C62828;
+            color: #fff;
+        }
         .product-badges {
             display: flex;
             gap: 4px;
@@ -384,6 +407,15 @@
         }
         .cart-add-btn:hover { transform: scale(1.1); background: #1565c0; }
         .cart-add-btn.in-cart { background: #2e7d32; }
+        .cart-add-btn:disabled {
+            background: #C62828;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        .cart-add-btn:disabled:hover {
+            transform: none;
+            background: #C62828;
+        }
         .cart-add-btn .qty-badge {
             font-size: 10px;
             position: absolute;
@@ -667,6 +699,7 @@
 
         <div class="almacen-btns" id="almacenBtns">
             <button class="almacen-btn active" data-almacen="" onclick="selectAlmacen('')">Todos</button>
+            <button class="almacen-btn" id="btnAgotados" onclick="toggleAgotados()">Agotado (<span id="agotadosCount">0</span>)</button>
         </div>
 
         <div class="filter-row">
@@ -748,6 +781,7 @@ let allProducts = [];
 let filteredProducts = [];
 let selectedAlmacen = '';
 let almacenes = new Set();
+let showAgotados = false;
 let cart = {}; // { codigo_almacen: { product, qty } }
 
 // ============================================================
@@ -978,6 +1012,15 @@ function selectAlmacen(name) {
     applyFilters();
 }
 
+function toggleAgotados() {
+    showAgotados = !showAgotados;
+    const btn = document.getElementById('btnAgotados');
+    if (btn) {
+        btn.classList.toggle('active', showAgotados);
+    }
+    applyFilters();
+}
+
 // ============================================================
 // FILTERS
 // ============================================================
@@ -1004,6 +1047,7 @@ function applyFilters() {
             const hay = (p.producto + ' ' + p.codigo).toLowerCase();
             if (!hay.includes(search)) return false;
         }
+        if (!showAgotados && (p.existencias <= 0)) return false;
         const price = getPrice(p);
         if (!isNaN(pMin) && (price === null || price < pMin)) return false;
         if (!isNaN(pMax) && (price === null || price > pMax)) return false;
@@ -1014,9 +1058,16 @@ function applyFilters() {
     filteredProducts.sort((a, b) => {
         if (orden === 'precio-asc') return (getPrice(a) || 9e9) - (getPrice(b) || 9e9);
         if (orden === 'precio-desc') return (getPrice(b) || 0) - (getPrice(a) || 0);
-        if (orden === 'stock-desc') return (b.cantidad || 0) - (a.cantidad || 0);
+        if (orden === 'stock-desc') return (b.existencias || 0) - (a.existencias || 0);
         return (a.producto || '').localeCompare(b.producto || '');
     });
+
+    // Actualizar count de agotados
+    const agotadosTotal = allProducts.filter(p => p.existencias <= 0).length;
+    const agotadosCountEl = document.getElementById('agotadosCount');
+    if (agotadosCountEl) {
+        agotadosCountEl.textContent = agotadosTotal;
+    }
 
     renderProducts();
 }
@@ -1295,8 +1346,8 @@ function sendWhatsAppOrder() {
 // ============================================================
 function renderCard(p) {
     const lista = (userSession.lista || '').toUpperCase();
-    const stockCls = p.cantidad > 0 ? '' : 'out';
-    const stockTxt = p.cantidad > 0 ? `Stock: <strong>${p.cantidad}</strong>` : 'Agotado';
+    const stockCls = p.existencias > 0 ? '' : 'out';
+    const stockTxt = p.existencias > 0 ? `Stock: <strong>${p.existencias}</strong>` : 'Agotado';
 
     // Precio
     let pricingHtml = '';
@@ -1356,14 +1407,21 @@ function renderCard(p) {
 
     const almacenCls = 'badge-' + p.almacen.toLowerCase();
     const cartKey = p.codigo + '_' + p.almacen;
+    const isOutOfStock = p.existencias <= 0;
+    const stockBadgeHtml = isOutOfStock
+        ? '<span class="stock-badge out-of-stock">AGOTADO</span>'
+        : `<span class="stock-badge in-stock">${p.existencias} pzs</span>`;
 
     return `
         <div class="product-card">
             <span class="badge badge-almacen ${almacenCls}">${escapeHtml(p.almacen)}</span>
-            <button class="cart-add-btn" data-codigo="${escapeHtml(cartKey)}" title="Agregar al carrito">+</button>
+            <button class="cart-add-btn" data-codigo="${escapeHtml(cartKey)}" title="${isOutOfStock ? 'Agotado' : 'Agregar al carrito'}" ${isOutOfStock ? 'disabled' : ''}>+</button>
             <div class="product-category">${escapeHtml(p.nombreCategoria || '')}</div>
             <div class="product-name">${escapeHtml(p.producto)}</div>
-            <div class="product-code">${escapeHtml(p.codigo)}</div>
+            <div class="product-code-row">
+                <div class="product-code">${escapeHtml(p.codigo)}</div>
+                ${stockBadgeHtml}
+            </div>
             ${(productBadges || extraBadges.length) ? `<div class="product-badges">${productBadges}${extraBadges.join('')}</div>` : ''}
             <div class="product-stock ${stockCls}">${stockTxt}</div>
             <div class="product-pricing">${pricingHtml}</div>
