@@ -773,6 +773,12 @@ const TOKEN = 'CELUCENTER_EQUIPOS_2026';
 const WHATSAPP_NUMBER = '5213413300001';
 const STORAGE_KEY = 'celu_equipos_session';
 
+// Sistema escalonado de precios: 2X → F → G → M. Envío incluido desde $6,000.
+const UMBRAL_F = 2500;  // desde $2,500 → Lista F (mayoreo)
+const UMBRAL_G = 3500;  // desde $3,500 → Lista G
+const UMBRAL_M = 5000;  // desde $5,000 → Lista M (mejor precio)
+const UMBRAL_ENVIO = 6000; // desde $6,000 → envío incluido en pedido
+
 // ============================================================
 // STATE
 // ============================================================
@@ -1129,12 +1135,26 @@ function precioCristian(listaF) {
 
 function getCartKey(p) { return p.codigo + '_' + p.almacen; }
 
+// Calcula la lista escalonada basada en el total del carrito (si usuario no tiene lista asignada)
+function getCartLista() {
+    if (userSession && userSession.lista) {
+        return userSession.lista.toUpperCase();
+    }
+    // Sistema escalonado: 2X → F → G → M
+    const total = getCartTotal();
+    if (total < UMBRAL_F) return '2X';
+    if (total < UMBRAL_G) return 'F';
+    if (total < UMBRAL_M) return 'G';
+    return 'M';
+}
+
 function getProductPrice(p) {
-    const lista = (userSession && userSession.lista || '').toUpperCase();
+    const lista = getCartLista();
     if (lista === 'M') return p.listaM;
     if (lista === 'G') return p.listaG;
     if (lista === 'F') return p.listaF;
     if (lista === 'CRISTIAN') return precioCristian(p.listaF);
+    if (lista === '2X') return p.precioPublico || p.listaF;
     return p.listaF || p.precioPublico;
 }
 
