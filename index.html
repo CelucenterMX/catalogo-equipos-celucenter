@@ -1417,9 +1417,10 @@ function renderCard(p) {
     const almacenCls = 'badge-' + p.almacen.toLowerCase();
     const cartKey = p.codigo + '_' + p.almacen;
     const isOutOfStock = p.existencias <= 0;
+    const stockDisplay = p.existencias > 99 ? '+99 pzs' : p.existencias + ' pzs';
     const stockBadgeHtml = isOutOfStock
         ? '<span class="stock-badge out-of-stock">AGOTADO</span>'
-        : `<span class="stock-badge in-stock">${p.existencias} pzs</span>`;
+        : `<span class="stock-badge in-stock">${stockDisplay}</span>`;
 
     return `
         <div class="product-card">
